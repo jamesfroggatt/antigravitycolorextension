@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Antigravity IDE — Workspace Identity & Surface Grays Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #07090d;
+      color: #e2e8f0;
+      user-select: none;
+      overflow-x: hidden;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Custom Range Sliders */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid #0f172a;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+      cursor: grab;
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.18);
+    }
+
+    .hue-rainbow {
+      background: linear-gradient(to right, 
+        hsl(0, 85%, 50%), 
+        hsl(60, 85%, 50%), 
+        hsl(120, 85%, 50%), 
+        hsl(180, 85%, 50%), 
+        hsl(240, 85%, 50%), 
+        hsl(300, 85%, 50%), 
+        hsl(360, 85%, 50%)
+      );
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.22);
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.4);
+    }
+
+    .ide-shadow {
+      box-shadow: 0 25px 70px -15px rgba(0, 0, 0, 0.9);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-2.5 md:p-4 gap-3">
+
+  <!-- TOP SIMULATOR BAR: SWITCH BETWEEN CONCURRENT ANTIGRAVITY IDE INSTANCES -->
+  <header class="max-w-[1560px] w-full mx-auto bg-[#11151f] border border-slate-800/90 rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 bg-sky-500/10 border border-sky-500/30 text-sky-300 px-2.5 py-1 rounded-md text-xs font-semibold">
+        <i data-lucide="Sliders" class="w-3.5 h-3.5"></i>
+        <span>Antigravity Extension Prototype v2</span>
+      </div>
+      <span class="text-xs text-slate-400 hidden xl:inline">
+        Now includes full slider control over <strong class="text-slate-200">Inner Workspace Grays</strong> (Code Editor, Claude Code Window, Sidebars & Terminal)
+      </span>
+    </div>
+
+    <!-- Instance Switcher Tabs -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <button onclick="switchInstance(0)" id="instanceBtn-0" class="instance-tab flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border">
+        <span id="dot-0" class="w-2.5 h-2.5 rounded-full"></span>
+        <span>Window 1: Payments API</span>
+      </button>
+      <button onclick="switchInstance(1)" id="instanceBtn-1" class="instance-tab flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border">
+        <span id="dot-1" class="w-2.5 h-2.5 rounded-full"></span>
+        <span>Window 2: Storefront UI</span>
+      </button>
+      <button onclick="switchInstance(2)" id="instanceBtn-2" class="instance-tab flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border">
+        <span id="dot-2" class="w-2.5 h-2.5 rounded-full"></span>
+        <span>Window 3: Auth Worker</span>
+      </button>
+
+      <div class="h-4 w-[1px] bg-slate-800 mx-1"></div>
+
+      <button onclick="toggleMultiMonitorModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+        <i data-lucide="layout-grid" class="w-3.5 h-3.5 text-sky-400"></i>
+        <span>Multi-Monitor Preview</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SIMULATED ANTIGRAVITY IDE WINDOW -->
+  <main id="ideWindowFrame" class="max-w-[1560px] w-full mx-auto flex-1 flex flex-col rounded-xl overflow-hidden ide-shadow transition-colors duration-75" style="border: 2px solid #ef4444;">
+    
+    <!-- 1. IDE TOP TITLE BAR / HEADER -->
+    <div id="ideTitleBar" class="h-10 px-3 flex items-center justify-between select-none transition-colors duration-75" style="background-color: #991b1b; color: #ffffff;">
+      
+      <!-- Left: App Logo & Menu Bar -->
+      <div class="flex items-center gap-3 text-xs">
+        <div class="flex items-center gap-1.5 font-bold tracking-tight">
+          <div class="w-5 h-5 rounded bg-white/15 flex items-center justify-center">
+            <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+        <nav class="hidden md:flex items-center gap-1 opacity-90 font-medium">
+          <span class="px-2 py-1 rounded hover:bg-white/10 cursor-pointer">File</span>
+          <span class="px-2 py-1 rounded hover:bg-white/10 cursor-pointer">Edit</span>
+          <span class="px-2 py-1 rounded hover:bg-white/10 cursor-pointer">Selection</span>
+          <span class="px-2 py-1 rounded hover:bg-white/10 cursor-pointer">View</span>
+          <span class="px-2 py-1 rounded hover:bg-white/10 cursor-pointer">Go</span>
+          <span class="px-2 py-1 rounded hover:bg-white/10 cursor-pointer">Run</span>
+          <span class="px-2 py-1 rounded hover:bg-white/10 cursor-pointer">Terminal</span>
+        </nav>
+      </div>
+
+      <!-- Center: Dynamic Prominent Workspace Title (FR-4 Option A) -->
+      <div class="flex items-center justify-center flex-1 px-4 overflow-hidden">
+        <div id="ideHeaderTitleContainer" class="flex items-center gap-2 px-3 py-0.5 rounded transition-all truncate">
+          <span id="ideHeaderTitleText" class="mono tracking-wide font-extrabold text-xs sm:text-sm truncate">
+            ██  PAYMENTS-API [PROD]  ██ — server.ts — Antigravity IDE
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: Layout Controls & OS Window Buttons -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-1.5 opacity-80">
+          <i data-lucide="panel-left" class="w-3.5 h-3.5 cursor-pointer hover:opacity-100" title="Sidebar"></i>
+          <i data-lucide="panel-bottom" class="w-3.5 h-3.5 cursor-pointer hover:opacity-100" title="Terminal"></i>
+          <i data-lucide="bot" class="w-3.5 h-3.5 cursor-pointer hover:opacity-100" title="Claude Code Panel"></i>
+        </div>
+        <div class="flex items-center gap-2 pl-2 border-l border-current/20">
+          <span class="w-3 h-3 rounded-full bg-amber-400/80 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-400/80 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-rose-400/90 inline-block"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. IDE WORKBENCH BODY (Activity Bar + Extension Sidebar + Code Editor + Claude Code Panel) -->
+    <div class="flex-1 flex min-h-[680px] overflow-hidden">
+      
+      <!-- FAR-LEFT ACTIVITY BAR -->
+      <aside id="ideActivityBar" class="w-12 flex flex-col items-center justify-between py-3 border-r border-white/10 shrink-0 transition-colors duration-75" style="background-color: #7f1d1d; color: #ffffff;">
+        <div class="flex flex-col items-center gap-4 w-full">
+          <button class="p-2 opacity-60 hover:opacity-100 transition" title="Explorer">
+            <i data-lucide="files" class="w-5 h-5"></i>
+          </button>
+          <button class="p-2 opacity-60 hover:opacity-100 transition" title="Search">
+            <i data-lucide="search" class="w-5 h-5"></i>
+          </button>
+          <button class="p-2 opacity-60 hover:opacity-100 transition" title="Source Control">
+            <i data-lucide="git-branch" class="w-5 h-5"></i>
+          </button>
+          <!-- Active Extension Icon: Workspace Identity -->
+          <button id="activityActiveIndicator" class="relative w-full flex justify-center py-2.5 opacity-100 bg-white/10" title="Workspace Identity Colorizer (Active)" style="border-left: 3px solid #ffffff;">
+            <i data-lucide="palette" class="w-5 h-5"></i>
+          </button>
+          <button class="p-2 opacity-60 hover:opacity-100 transition" title="Claude Code">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="flex flex-col items-center gap-4 opacity-70">
+          <i data-lucide="user-circle" class="w-5 h-5"></i>
+          <i data-lucide="settings" class="w-5 h-5"></i>
+        </div>
+      </aside>
+
+      <!-- LEFT SIDEBAR: EXTENSION WEBVIEW PANEL (Background also reflects Sidebar Gray!) -->
+      <section id="ideLeftSidebar" class="w-80 sm:w-[370px] border-r border-white/10 flex flex-col shrink-0 select-none transition-colors duration-75" style="background-color: #161010;">
+        
+        <!-- Sidebar Title Header -->
+        <div id="ideLeftSidebarHeader" class="px-3.5 py-2 border-b border-white/10 flex items-center justify-between transition-colors duration-75" style="background-color: #1d1414;">
+          <div class="flex items-center gap-2">
+            <i data-lucide="palette" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span class="text-[11px] font-bold tracking-wider uppercase text-slate-200">Workspace Identity</span>
+          </div>
+          <span id="activeWorkspaceBadge" class="text-[10px] mono px-2 py-0.5 rounded bg-black/40 text-slate-300 border border-white/10">
+            payments-api
+          </span>
+        </div>
+
+        <!-- Scrollable Extension Controls -->
+        <div class="p-3.5 space-y-3.5 overflow-y-auto flex-1 text-xs">
+          
+          <!-- CARD 1: HEADER TEXT & NATIVE PROMINENCE -->
+          <div class="bg-black/25 border border-white/10 rounded-lg p-3 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="font-semibold text-slate-100 flex items-center gap-1.5">
+                <i data-lucide="type" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>1. Header Title & Size</span>
+              </label>
+              <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-medium">
+                Option A Safe
+              </span>
+            </div>
+
+            <input 
+              id="workspaceTitleInput" 
+              type="text" 
+              value="PAYMENTS-API [PROD]"
+              oninput="handleTitleChange()"
+              placeholder="Enter workspace title..."
+              class="w-full bg-black/40 border border-white/15 focus:border-sky-400 rounded-md px-2.5 py-1.5 text-xs font-semibold text-white outline-none mono transition"
+            />
+
+            <div class="grid grid-cols-2 gap-1.5" id="prominenceButtons">
+              <button onclick="setProminence('block')" data-style="block" class="prom-btn px-2 py-1 rounded border text-left mono text-[10px] transition">
+                ██ BLOCK ██
+              </button>
+              <button onclick="setProminence('brackets')" data-style="brackets" class="prom-btn px-2 py-1 rounded border text-left mono text-[10px] transition">
+                【 BRACKET 】
+              </button>
+              <button onclick="setProminence('spaced')" data-style="spaced" class="prom-btn px-2 py-1 rounded border text-left mono text-[10px] transition">
+                W I D E  T E X T
+              </button>
+              <button onclick="setProminence('chevrons')" data-style="chevrons" class="prom-btn px-2 py-1 rounded border text-left mono text-[10px] transition">
+                ⟫⟫ CHEVRON ⟪⟪
+              </button>
+            </div>
+
+            <div class="pt-1 flex items-center justify-between border-t border-white/10 text-[11px] text-slate-300">
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="forceUppercaseToggle" checked onchange="handleTitleChange()" class="rounded text-sky-500" />
+                <span>Force ALL CAPS</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="statusBadgeToggle" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Status Bar Pill</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- CARD 2: OUTER WINDOW FRAME SLIDERS (Header, Activity Bar, Borders, Status Bar) -->
+          <div class="bg-black/25 border border-white/10 rounded-lg p-3 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="font-semibold text-slate-100 flex items-center gap-1.5">
+                <i data-lucide="frame" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>2. Outer Frame & Header</span>
+              </label>
+              <span id="liveFrameHexPreview" class="mono text-[10px] px-2 py-0.5 rounded bg-black/50 border border-white/10 text-slate-200">#991B1B</span>
+            </div>
+
+            <!-- Frame Hue -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-400">Frame Hue</span>
+                <span id="hueValLabel" class="mono text-slate-200 font-medium">0°</span>
+              </div>
+              <input id="hueSlider" type="range" min="0" max="360" value="0" class="hue-rainbow" oninput="handleFrameSliderInput()" />
+            </div>
+
+            <!-- Frame Saturation -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-400">Frame Saturation</span>
+                <span id="satValLabel" class="mono text-slate-200 font-medium">70%</span>
+              </div>
+              <input id="satSlider" type="range" min="0" max="100" value="70" oninput="handleFrameSliderInput()" />
+            </div>
+
+            <!-- Frame Lightness -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-400">Frame Lightness</span>
+                <span id="lightValLabel" class="mono text-slate-200 font-medium">36%</span>
+              </div>
+              <input id="lightSlider" type="range" min="12" max="85" value="36" oninput="handleFrameSliderInput()" />
+            </div>
+
+            <!-- Outer Frame Zone Toggles -->
+            <div class="pt-1.5 border-t border-white/10 grid grid-cols-2 gap-1.5 text-[11px] text-slate-300">
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="zoneTitleBar" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Title Bar Header</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="zoneWindowBorder" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Window Border</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="zoneActivityBar" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Activity Bar</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="zoneStatusBar" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Status Bar</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- CARD 3: INNER WORKSPACE "GRAYS" / BACKGROUNDS (Code Editor, Claude Code, Sidebars, Tabs) -->
+          <div class="bg-sky-500/5 border border-sky-500/30 rounded-lg p-3 space-y-3 shadow-inner">
+            <div class="flex items-center justify-between">
+              <label class="font-semibold text-white flex items-center gap-1.5">
+                <i data-lucide="layout-panel-left" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>3. Inner Surfaces ("The Grays")</span>
+              </label>
+              <span id="liveSurfaceHexPreview" class="mono text-[10px] px-2 py-0.5 rounded bg-black/50 border border-sky-500/30 text-sky-300">#140C0C</span>
+            </div>
+
+            <p class="text-[11px] text-slate-300/90 leading-snug">
+              Customize the grays behind the <strong>Code Window</strong>, <strong>Claude Code Window</strong>, <strong>Sidebar</strong>, and <strong>Terminal</strong>.
+            </p>
+
+            <!-- Quick Gray Flavor Chips -->
+            <div class="grid grid-cols-4 gap-1 text-[10px]">
+              <button onclick="applyQuickGray('oled')" class="px-1.5 py-1 rounded bg-black/60 hover:bg-black border border-white/15 text-slate-200 font-medium transition">
+                OLED Black
+              </button>
+              <button onclick="applyQuickGray('neutral')" class="px-1.5 py-1 rounded bg-slate-800/70 hover:bg-slate-800 border border-white/15 text-slate-200 font-medium transition">
+                Pure Gray
+              </button>
+              <button onclick="applyQuickGray('tinted')" class="px-1.5 py-1 rounded bg-indigo-950/80 hover:bg-indigo-900 border border-sky-400/30 text-sky-200 font-medium transition">
+                Theme Tint
+              </button>
+              <button onclick="applyQuickGray('slate')" class="px-1.5 py-1 rounded bg-slate-700/70 hover:bg-slate-600 border border-white/15 text-slate-100 font-medium transition">
+                Lighter Gray
+              </button>
+            </div>
+
+            <!-- Link Surface Hue to Header Toggle -->
+            <div class="flex items-center justify-between pt-1 border-t border-white/10 text-[11px]">
+              <label class="flex items-center gap-2 cursor-pointer text-slate-200 font-medium">
+                <input type="checkbox" id="linkSurfaceHueToggle" checked onchange="handleSurfaceSliderInput()" class="rounded text-sky-500" />
+                <span>Match Hue to Outer Header</span>
+              </label>
+              <span id="surfaceHueStatus" class="text-[10px] mono text-sky-300">Synced (0°)</span>
+            </div>
+
+            <!-- Independent Surface Hue Slider (Shown when unlinked or adjustable directly) -->
+            <div id="surfaceHueContainer" class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-400">Surface Undertone Hue</span>
+                <span id="surfaceHueValLabel" class="mono text-slate-200 font-medium">0°</span>
+              </div>
+              <input id="surfaceHueSlider" type="range" min="0" max="360" value="0" class="hue-rainbow" oninput="handleManualSurfaceHue()" />
+            </div>
+
+            <!-- Surface Gray Level (Darkness / Lightness) -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300 font-medium">Editor Base Gray Level (Darkness)</span>
+                <span id="surfaceLightValLabel" class="mono text-sky-300 font-bold">8%</span>
+              </div>
+              <input id="surfaceLightSlider" type="range" min="3" max="32" value="8" oninput="handleSurfaceSliderInput()" />
+              <div class="flex justify-between text-[9px] text-slate-400 mono">
+                <span>3% Pitch Black</span>
+                <span>14% Charcoal</span>
+                <span>32% Slate Gray</span>
+              </div>
+            </div>
+
+            <!-- Surface Tint Saturation (0% Pure Gray -> 50% Tinted) -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300 font-medium">Gray Color Tint (0% = Pure Gray)</span>
+                <span id="surfaceSatValLabel" class="mono text-sky-300 font-bold">24%</span>
+              </div>
+              <input id="surfaceSatSlider" type="range" min="0" max="55" value="24" oninput="handleSurfaceSliderInput()" />
+            </div>
+
+            <!-- Claude Code & Sidebar Depth Offset -->
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300 font-medium">Claude Code & Sidebar Contrast Step</span>
+                <span id="surfaceOffsetValLabel" class="mono text-sky-300 font-bold">+3%</span>
+              </div>
+              <input id="surfaceOffsetSlider" type="range" min="-6" max="10" value="3" oninput="handleSurfaceSliderInput()" />
+              <div class="flex justify-between text-[9px] text-slate-400 mono">
+                <span>Darker Panels (-6%)</span>
+                <span>Flat (0%)</span>
+                <span>Lighter Panels (+10%)</span>
+              </div>
+            </div>
+
+            <!-- Which Inner Surfaces to Colorize -->
+            <div class="pt-1.5 border-t border-white/10 grid grid-cols-2 gap-1.5 text-[11px] text-slate-200">
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="surfaceZoneEditor" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Code Editor Window</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="surfaceZoneClaude" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Claude Code Panel</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="surfaceZoneSidebar" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Left Sidebar</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="surfaceZoneTabsTerm" checked onchange="updateIDETheme()" class="rounded text-sky-500" />
+                <span>Tabs & Terminal</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- CARD 4: SAVED GLOBAL PRESETS -->
+          <div class="bg-black/25 border border-white/10 rounded-lg p-3 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="font-semibold text-slate-100 flex items-center gap-1.5">
+                <i data-lucide="bookmark" class="w-3.5 h-3.5 text-sky-400"></i>
+                <span>4. Saved Global Presets</span>
+              </label>
+              <span class="text-[10px] text-slate-400">Frame + Grays</span>
+            </div>
+
+            <div id="presetGrid" class="grid grid-cols-2 gap-1.5">
+              <!-- Populated by JS -->
+            </div>
+
+            <div class="pt-1.5 border-t border-white/10 flex gap-1.5">
+              <input 
+                id="newPresetNameInput" 
+                type="text" 
+                placeholder="Save current scheme..." 
+                class="flex-1 bg-black/40 border border-white/15 focus:border-sky-400 rounded px-2 py-1 text-[11px] text-white outline-none"
+              />
+              <button 
+                onclick="saveCurrentAsPreset()" 
+                class="px-2.5 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white font-semibold text-[11px] flex items-center gap-1 shrink-0 transition"
+              >
+                <i data-lucide="plus" class="w-3 h-3"></i>
+                <span>Save</span>
+              </button>
+            </div>
+
+            <button 
+              onclick="resetToDefaultTheme()" 
+              class="w-full py-1.5 px-2.5 rounded border border-white/15 hover:bg-white/10 text-slate-300 hover:text-white text-[11px] font-medium flex items-center justify-center gap-1.5 transition"
+            >
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              <span>Reset All Frame & Grays to Default</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- CENTER AREA: CODE EDITOR + BOTTOM TERMINAL -->
+      <section class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Editor Group Header / Tabs Bar -->
+        <div id="ideTabsBar" class="h-9 border-b border-white/10 flex items-center justify-between px-2 text-xs transition-colors duration-75" style="background-color: #1c1010;">
+          <div class="flex items-center gap-1 h-full pt-1">
+            <!-- Active Tab (Matches Code Editor Background) -->
+            <div id="ideActiveTab" class="flex items-center gap-2 px-3 h-full border-t-2 border-sky-400 text-slate-100 rounded-t font-medium cursor-pointer" style="background-color: #140c0c;">
+              <i data-lucide="file-code" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span id="secondaryEditorTabName" class="mono text-[11px]">server.ts</span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300">Editor Canvas</span>
+            </div>
+            <!-- Inactive Tab: Live settings.json toggle -->
+            <button onclick="toggleJsonDrawer()" class="flex items-center gap-1.5 px-3 h-full text-slate-400 hover:text-slate-200 transition">
+              <i data-lucide="file-json" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span class="mono text-[11px]">.vscode/settings.json</span>
+            </button>
+          </div>
+
+          <div class="hidden sm:flex items-center gap-2 pr-2 text-[10px] mono text-slate-400">
+            <span>editor.background:</span>
+            <span id="badgeEditorBgHex" class="px-1.5 py-0.5 rounded bg-black/40 text-slate-200 border border-white/10">#140C0C</span>
+          </div>
+        </div>
+
+        <!-- Breadcrumb Bar -->
+        <div id="ideBreadcrumbBar" class="px-4 py-1.5 border-b border-white/5 flex items-center justify-between text-[11px] mono text-slate-400 transition-colors duration-75" style="background-color: #160d0d;">
+          <div class="flex items-center gap-1.5">
+            <span id="breadcrumbWorkspace">payments-api</span>
+            <span>›</span>
+            <span>src</span>
+            <span>›</span>
+            <span id="breadcrumbFile" class="text-slate-200">server.ts</span>
+          </div>
+          <span class="text-[10px] text-sky-300/90 hidden md:inline">
+            ← Adjust "3. Inner Surfaces (The Grays)" sliders to change this editor & Claude Code background
+          </span>
+        </div>
+
+        <!-- CODE EDITOR CANVAS (Controlled by editor.background) -->
+        <div id="ideCodeEditorCanvas" class="flex-1 flex flex-col justify-between p-4 overflow-y-auto transition-colors duration-75" style="background-color: #140c0c;">
+          
+          <!-- Simulated TypeScript Code with Line Gutter -->
+          <div class="flex gap-4 mono text-xs leading-relaxed">
+            <div id="ideEditorGutter" class="select-none text-right pr-2 border-r border-white/10 text-slate-500 space-y-0.5">
+              <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+            </div>
+            <div class="flex-1 space-y-0.5 overflow-x-auto">
+              <div><span class="text-purple-400">import</span> <span class="text-slate-200">{ createServer }</span> <span class="text-purple-400">from</span> <span class="text-emerald-400">'@antigravity/core'</span>;</div>
+              <div><span class="text-purple-400">import</span> <span class="text-slate-200">{ verifySignature }</span> <span class="text-purple-400">from</span> <span class="text-emerald-400">'./security/hmac'</span>;</div>
+              <div class="h-2"></div>
+              <div class="text-slate-400 italic">// Code Editor background ("editor.background") updates live via Surface Sliders</div>
+              <div><span class="text-purple-400">export async function</span> <span class="text-sky-300 font-semibold">handleWebhook</span>(<span class="text-amber-300">req</span>: <span class="text-teal-300">Request</span>) {</div>
+              <div class="pl-4"><span class="text-purple-400">const</span> <span class="text-slate-200">sig = req.headers.get(</span><span class="text-emerald-400">'x-antigravity-sig'</span><span class="text-slate-200">);</span></div>
+              <div class="pl-4"><span class="text-purple-400">if</span> <span class="text-slate-200">(!sig || !</span><span class="text-sky-300">verifySignature</span><span class="text-slate-200">(req.body, sig)) {</span></div>
+              <div class="pl-8"><span class="text-purple-400">return new</span> <span class="text-teal-300">Response</span>(<span class="text-emerald-400">'Unauthorized'</span>, { status: <span class="text-amber-400">401</span> });</div>
+              <div class="pl-4"><span class="text-slate-200">}</span></div>
+              <div class="pl-4"><span class="text-purple-400">return</span> <span class="text-teal-300">Response</span>.<span class="text-sky-300">json</span>({ received: <span class="text-amber-400">true</span>, timestamp: <span class="text-teal-300">Date</span>.<span class="text-sky-300">now</span>() });</div>
+              <div>}</div>
+            </div>
+          </div>
+
+          <!-- Live Generated .vscode/settings.json Collapsible Inspector Inside Editor -->
+          <div id="jsonInspectorBox" class="mt-4 rounded-xl border border-white/10 bg-black/35 p-3.5">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <i data-lucide="file-json" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-300">
+                  Live .vscode/settings.json Output (Frame + Grays)
+                </span>
+              </div>
+              <button onclick="copySettingsJson()" id="copyJsonBtn" class="text-[11px] px-2.5 py-1 rounded bg-white/10 hover:bg-white/15 text-slate-200 border border-white/10 flex items-center gap-1.5 transition">
+                <i data-lucide="copy" class="w-3 h-3"></i>
+                <span>Copy JSON</span>
+              </button>
+            </div>
+            <pre id="jsonCodeOutput" class="mono text-[11px] leading-snug text-sky-300 max-h-44 overflow-y-auto select-all"></pre>
+          </div>
+
+        </div>
+
+        <!-- BOTTOM TERMINAL / OUTPUT PANEL (Controlled by panel.background & terminal.background) -->
+        <div id="ideTerminalPanel" class="h-32 border-t border-white/10 p-3 flex flex-col justify-between mono text-xs transition-colors duration-75" style="background-color: #100909;">
+          <div class="flex items-center justify-between border-b border-white/10 pb-1.5 text-[10px] text-slate-400">
+            <div class="flex items-center gap-4">
+              <span class="text-slate-200 font-bold border-b border-sky-400 pb-0.5">TERMINAL</span>
+              <span>OUTPUT</span>
+              <span>DEBUG CONSOLE</span>
+              <span>PROBLEMS (0)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span>terminal.background:</span>
+              <span id="badgeTerminalBgHex" class="px-1.5 py-0.2 rounded bg-black/40 text-slate-200 border border-white/10">#100909</span>
+            </div>
+          </div>
+          <div class="space-y-1 text-[11px] text-slate-300 pt-1">
+            <div><span class="text-emerald-400">➜</span> <span class="text-sky-400 font-semibold" id="terminalPromptFolder">payments-api</span> <span class="text-slate-400">git:(main)</span> npm run dev</div>
+            <div class="text-slate-400">[Antigravity] Server listening on http://localhost:4000 — Watch mode active</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT DOCKED PANEL: SIMULATED CLAUDE CODE / AI ASSISTANT WINDOW (Controlled by sideBar.background / chat.background) -->
+      <aside id="ideClaudeCodePanel" class="w-72 xl:w-80 border-l border-white/10 flex flex-col justify-between shrink-0 transition-colors duration-75" style="background-color: #190f0f;">
+        
+        <!-- Claude Code Header -->
+        <div id="ideClaudeHeader" class="px-3.5 py-2 border-b border-white/10 flex items-center justify-between transition-colors duration-75" style="background-color: #211313;">
+          <div class="flex items-center gap-2">
+            <span class="w-5 h-5 rounded-md bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
+              <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+            </span>
+            <span class="text-xs font-bold text-slate-100">Claude Code</span>
+            <span class="text-[9px] mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Active</span>
+          </div>
+          <span id="badgeClaudeBgHex" class="mono text-[10px] px-1.5 py-0.5 rounded bg-black/40 text-slate-300 border border-white/10">#190F0F</span>
+        </div>
+
+        <!-- Simulated Claude Code Conversation Body -->
+        <div class="p-3.5 space-y-3 overflow-y-auto flex-1 text-xs">
+          <div class="rounded-lg p-2.5 bg-white/5 border border-white/10 text-slate-200 space-y-1">
+            <div class="text-[10px] font-semibold text-amber-300 flex items-center justify-between">
+              <span>You</span>
+              <span class="mono text-slate-400">Just now</span>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              Can we verify the HMAC webhook signature middleware in <code class="mono text-sky-300">server.ts</code>?
+            </p>
+          </div>
+
+          <div class="rounded-lg p-3 bg-black/25 border border-white/10 text-slate-200 space-y-2">
+            <div class="text-[10px] font-semibold text-sky-300 flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3 h-3"></i>
+              <span>Claude Code</span>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">
+              Notice how this <strong>Claude Code panel background</strong> (<code class="mono text-amber-300">sideBar.background</code> &amp; <code class="mono text-amber-300">editorWidget.background</code>) shifts its gray level and color tint in real time as you move the <strong>Inner Surfaces ("The Grays")</strong> sliders!
+            </p>
+            <div class="p-2 rounded bg-black/40 border border-white/10 mono text-[10px] text-emerald-300">
+              ✓ Timing-safe buffer comparison enabled
+            </div>
+          </div>
+
+          <!-- Surface Swatch Summary Card inside Claude Code Panel -->
+          <div class="rounded-lg p-3 bg-black/30 border border-white/10 space-y-2">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Active Inner Gray Layers</div>
+            <div class="space-y-1.5 text-[11px] mono">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Code Editor:</span>
+                <span id="swatchRowEditor" class="text-slate-200 font-semibold">#140C0C</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Claude Code / Sidebar:</span>
+                <span id="swatchRowClaude" class="text-slate-200 font-semibold">#190F0F</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Tabs & Headers:</span>
+                <span id="swatchRowTabs" class="text-slate-200 font-semibold">#1C1010</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Terminal Panel:</span>
+                <span id="swatchRowTerminal" class="text-slate-200 font-semibold">#100909</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Claude Code Prompt Input Box -->
+        <div class="p-3 border-t border-white/10 bg-black/20">
+          <div class="rounded-lg border border-white/15 bg-black/40 px-3 py-2 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Ask Claude Code or type /command...</span>
+            <i data-lucide="corner-down-left" class="w-3.5 h-3.5 text-slate-500"></i>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+    <!-- 3. IDE BOTTOM STATUS BAR -->
+    <footer id="ideStatusBar" class="h-7 px-3 flex items-center justify-between text-[11px] font-medium select-none transition-colors duration-75" style="background-color: #7f1d1d; color: #ffffff;">
+      <div class="flex items-center gap-3">
+        <div id="statusBarWorkspaceMirror" class="px-2 py-0.5 rounded font-bold mono tracking-wide flex items-center gap-1.5 bg-black/30 border border-white/20">
+          <i data-lucide="folder-git-2" class="w-3 h-3"></i>
+          <span id="statusBarMirrorText">PAYMENTS-API [PROD]</span>
+        </div>
+        <div class="flex items-center gap-1 opacity-90">
+          <i data-lucide="git-branch" class="w-3 h-3"></i>
+          <span>main*</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 opacity-90 mono text-[10px]">
+        <span>Frame + Inner Grays Synced</span>
+        <span>UTF-8</span>
+        <span>TypeScript</span>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- MULTI-MONITOR SIDE-BY-SIDE COMPARISON MODAL -->
+  <div id="multiMonitorModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#11151f] border border-slate-700 rounded-2xl max-w-6xl w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="monitor" class="w-5 h-5 text-sky-400"></i>
+            <span>Multi-Monitor Comparison (Outer Frame + Inner Editor &amp; Claude Code Grays)</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Each window has its own custom header, border, code editor gray canvas, and Claude Code panel tint.
+          </p>
+        </div>
+        <button onclick="toggleMultiMonitorModal()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="multiMonitorGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="toggleMultiMonitorModal()" class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-semibold text-white">
+          Return to Active Workspace Editor
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- WORKSPACE INSTANCES STATE (Includes Both Frame & Inner Surface Grays) ---
+    const instances = [
+      {
+        id: 0,
+        folderName: 'payments-api',
+        fileName: 'server.ts',
+        customTitle: 'PAYMENTS-API [PROD]',
+        prominence: 'block',
+        uppercase: true,
+        statusMirror: true,
+        // Outer Frame HSL
+        h: 0, s: 70, l: 36,
+        zones: { titleBar: true, windowBorder: true, activityBar: true, statusBar: true },
+        // Inner Surfaces ("The Grays")
+        linkSurfaceHue: true,
+        surfaceH: 0,
+        surfaceS: 26,      // Subtle crimson-obsidian tint in the gray
+        surfaceL: 8,       // Deep dark gray level
+        surfaceOffset: 3,  // Claude Code & Sidebar +3% lighter than code canvas
+        surfaceZones: { editor: true, claude: true, sidebar: true, tabsTerm: true }
+      },
+      {
+        id: 1,
+        folderName: 'storefront-web',
+        fileName: 'CheckoutPage.tsx',
+        customTitle: 'STOREFRONT UI [STAGING]',
+        prominence: 'brackets',
+        uppercase: true,
+        statusMirror: true,
+        h: 212, s: 78, l: 34,
+        zones: { titleBar: true, windowBorder: true, activityBar: true, statusBar: true },
+        linkSurfaceHue: true,
+        surfaceH: 212,
+        surfaceS: 32,      // Deep midnight-blue gray canvas
+        surfaceL: 11,
+        surfaceOffset: 4,
+        surfaceZones: { editor: true, claude: true, sidebar: true, tabsTerm: true }
+      },
+      {
+        id: 2,
+        folderName: 'auth-worker',
+        fileName: 'tokenValidator.ts',
+        customTitle: 'AUTH WORKER [LOCAL DEV]',
+        prominence: 'chevrons',
+        uppercase: true,
+        statusMirror: true,
+        h: 152, s: 68, l: 28,
+        zones: { titleBar: true, windowBorder: true, activityBar: true, statusBar: true },
+        linkSurfaceHue: true,
+        surfaceH: 152,
+        surfaceS: 22,      // Deep pine-charcoal gray canvas
+        surfaceL: 9,
+        surfaceOffset: 3,
+        surfaceZones: { editor: true, claude: true, sidebar: true, tabsTerm: true }
+      }
+    ];
+
+    let activeInstanceIdx = 0;
+
+    let presets = [
+      { name: 'Crimson + Obsidian', h: 0, s: 70, l: 36, surfS: 26, surfL: 8, surfOff: 3, prominence: 'block' },
+      { name: 'Cobalt + Navy Slate', h: 212, s: 78, l: 34, surfS: 32, surfL: 11, surfOff: 4, prominence: 'brackets' },
+      { name: 'Emerald + Pine Gray', h: 152, s: 68, l: 28, surfS: 22, surfL: 9, surfOff: 3, prominence: 'chevrons' },
+      { name: 'Amber + Warm Charcoal', h: 36, s: 88, l: 42, surfS: 18, surfL: 12, surfOff: 3, prominence: 'block' },
+      { name: 'Violet + Deep Dusk', h: 268, s: 65, l: 35, surfS: 28, surfL: 10, surfOff: 4, prominence: 'spaced' },
+      { name: 'Stealth Neutral Gray', h: 220, s: 15, l: 24, surfS: 0, surfL: 13, surfOff: 3, prominence: 'brackets' }
+    ];
+
+    // --- COLOR CONVERSION HELPERS ---
+    function clamp(val, min, max) {
+      return Math.max(min, Math.min(max, val));
+    }
+
+    function hslToHex(h, s, l) {
+      h = ((h % 360) + 360) % 360;
+      s = clamp(s, 0, 100);
+      l = clamp(l, 0, 100) / 100;
+      const a = (s * Math.min(l, 1 - l)) / 100;
+      const f = n => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color).toString(16).padStart(2, '0');
+      };
+      return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+    }
+
+    function getAutoContrastHex(h, s, l) {
+      return l > 54 ? '#0F172A' : '#FFFFFF';
+    }
+
+    function formatProminentTitle(rawTitle, style, forceUpper, fileName) {
+      const base = forceUpper ? rawTitle.toUpperCase() : rawTitle;
+      let framed = base;
+      switch (style) {
+        case 'block': framed = `██  ${base}  ██`; break;
+        case 'brackets': framed = `【  ${base}  】`; break;
+        case 'spaced': framed = base.split('').join(' '); break;
+        case 'chevrons': framed = `⟫⟫⟫  ${base}  ⟪⟪⟪`; break;
+      }
+      return `${framed} — ${fileName} — Antigravity IDE`;
+    }
+
+    // --- LOAD INSTANCE INTO EXTENSION CONTROLS ---
+    function loadInstanceToControls() {
+      const inst = instances[activeInstanceIdx];
+
+      document.getElementById('workspaceTitleInput').value = inst.customTitle;
+      document.getElementById('forceUppercaseToggle').checked = inst.uppercase;
+      document.getElementById('statusBadgeToggle').checked = inst.statusMirror;
+
+      // Outer Frame Sliders
+      document.getElementById('hueSlider').value = inst.h;
+      document.getElementById('satSlider').value = inst.s;
+      document.getElementById('lightSlider').value = inst.l;
+
+      document.getElementById('zoneTitleBar').checked = inst.zones.titleBar;
+      document.getElementById('zoneWindowBorder').checked = inst.zones.windowBorder;
+      document.getElementById('zoneActivityBar').checked = inst.zones.activityBar;
+      document.getElementById('zoneStatusBar').checked = inst.zones.statusBar;
+
+      // Inner Surface ("The Grays") Sliders
+      document.getElementById('linkSurfaceHueToggle').checked = inst.linkSurfaceHue;
+      document.getElementById('surfaceHueSlider').value = inst.linkSurfaceHue ? inst.h : inst.surfaceH;
+      document.getElementById('surfaceLightSlider').value = inst.surfaceL;
+      document.getElementById('surfaceSatSlider').value = inst.surfaceS;
+      document.getElementById('surfaceOffsetSlider').value = inst.surfaceOffset;
+
+      document.getElementById('surfaceZoneEditor').checked = inst.surfaceZones.editor;
+      document.getElementById('surfaceZoneClaude').checked = inst.surfaceZones.claude;
+      document.getElementById('surfaceZoneSidebar').checked = inst.surfaceZones.sidebar;
+      document.getElementById('surfaceZoneTabsTerm').checked = inst.surfaceZones.tabsTerm;
+
+      // Labels
+      document.getElementById('activeWorkspaceBadge').textContent = inst.folderName;
+      document.getElementById('breadcrumbWorkspace').textContent = inst.folderName;
+      document.getElementById('breadcrumbFile').textContent = inst.fileName;
+      document.getElementById('secondaryEditorTabName').textContent = inst.fileName;
+      document.getElementById('terminalPromptFolder').textContent = inst.folderName;
+
+      updateProminenceButtonsUI(inst.prominence);
+      renderInstanceTabs();
+      renderPresetGrid();
+      updateIDETheme();
+    }
+
+    function updateProminenceButtonsUI(activeStyle) {
+      document.querySelectorAll('.prom-btn').forEach(btn => {
+        if (btn.dataset.style === activeStyle) {
+          btn.className = 'prom-btn px-2 py-1 rounded border text-left mono text-[10px] transition bg-sky-500/25 border-sky-400 text-white font-bold';
+        } else {
+          btn.className = 'prom-btn px-2 py-1 rounded border text-left mono text-[10px] transition bg-black/30 border-white/10 text-slate-400 hover:text-slate-200';
+        }
+      });
+    }
+
+    function setProminence(style) {
+      instances[activeInstanceIdx].prominence = style;
+      updateProminenceButtonsUI(style);
+      updateIDETheme();
+    }
+
+    function handleTitleChange() {
+      const inst = instances[activeInstanceIdx];
+      inst.customTitle = document.getElementById('workspaceTitleInput').value || inst.folderName;
+      inst.uppercase = document.getElementById('forceUppercaseToggle').checked;
+      updateIDETheme();
+    }
+
+    function handleFrameSliderInput() {
+      const inst = instances[activeInstanceIdx];
+      inst.h = parseInt(document.getElementById('hueSlider').value, 10);
+      inst.s = parseInt(document.getElementById('satSlider').value, 10);
+      inst.l = parseInt(document.getElementById('lightSlider').value, 10);
+
+      if (inst.linkSurfaceHue) {
+        inst.surfaceH = inst.h;
+        document.getElementById('surfaceHueSlider').value = inst.h;
+      }
+
+      updateIDETheme();
+      renderInstanceTabs();
+    }
+
+    function handleManualSurfaceHue() {
+      const inst = instances[activeInstanceIdx];
+      // Automatically uncheck "Match Hue to Outer Header" if user drags Surface Hue directly
+      document.getElementById('linkSurfaceHueToggle').checked = false;
+      inst.linkSurfaceHue = false;
+      inst.surfaceH = parseInt(document.getElementById('surfaceHueSlider').value, 10);
+      updateIDETheme();
+    }
+
+    function handleSurfaceSliderInput() {
+      const inst = instances[activeInstanceIdx];
+      inst.linkSurfaceHue = document.getElementById('linkSurfaceHueToggle').checked;
+      if (inst.linkSurfaceHue) {
+        inst.surfaceH = inst.h;
+        document.getElementById('surfaceHueSlider').value = inst.h;
+      } else {
+        inst.surfaceH = parseInt(document.getElementById('surfaceHueSlider').value, 10);
+      }
+
+      inst.surfaceL = parseInt(document.getElementById('surfaceLightSlider').value, 10);
+      inst.surfaceS = parseInt(document.getElementById('surfaceSatSlider').value, 10);
+      inst.surfaceOffset = parseInt(document.getElementById('surfaceOffsetSlider').value, 10);
+
+      updateIDETheme();
+    }
+
+    function applyQuickGray(mode) {
+      const inst = instances[activeInstanceIdx];
+      if (mode === 'oled') {
+        inst.surfaceL = 4;
+        inst.surfaceS = 10;
+        inst.surfaceOffset = 3;
+      } else if (mode === 'neutral') {
+        inst.surfaceL = 12;
+        inst.surfaceS = 0; // 0% saturation = pure neutral gray
+        inst.surfaceOffset = 3;
+      } else if (mode === 'tinted') {
+        inst.linkSurfaceHue = true;
+        inst.surfaceH = inst.h;
+        inst.surfaceL = 10;
+        inst.surfaceS = 30;
+        inst.surfaceOffset = 4;
+      } else if (mode === 'slate') {
+        inst.surfaceL = 22;
+        inst.surfaceS = 14;
+        inst.surfaceOffset = 4;
+      }
+      loadInstanceToControls();
+    }
+
+    function updateIDETheme() {
+      const inst = instances[activeInstanceIdx];
+
+      // Read checkboxes
+      inst.statusMirror = document.getElementById('statusBadgeToggle').checked;
+      inst.zones.titleBar = document.getElementById('zoneTitleBar').checked;
+      inst.zones.windowBorder = document.getElementById('zoneWindowBorder').checked;
+      inst.zones.activityBar = document.getElementById('zoneActivityBar').checked;
+      inst.zones.statusBar = document.getElementById('zoneStatusBar').checked;
+
+      inst.surfaceZones.editor = document.getElementById('surfaceZoneEditor').checked;
+      inst.surfaceZones.claude = document.getElementById('surfaceZoneClaude').checked;
+      inst.surfaceZones.sidebar = document.getElementById('surfaceZoneSidebar').checked;
+      inst.surfaceZones.tabsTerm = document.getElementById('surfaceZoneTabsTerm').checked;
+
+      const sHue = inst.linkSurfaceHue ? inst.h : inst.surfaceH;
+
+      // Update Slider Value Readouts & Gradients
+      document.getElementById('hueValLabel').textContent = `${inst.h}°`;
+      document.getElementById('satValLabel').textContent = `${inst.s}%`;
+      document.getElementById('lightValLabel').textContent = `${inst.l}%`;
+
+      document.getElementById('surfaceHueStatus').textContent = inst.linkSurfaceHue ? `Synced (${sHue}°)` : `Custom (${sHue}°)`;
+      document.getElementById('surfaceHueValLabel').textContent = `${sHue}°`;
+      document.getElementById('surfaceLightValLabel').textContent = `${inst.surfaceL}%`;
+      document.getElementById('surfaceSatValLabel').textContent = `${inst.surfaceS}%`;
+      document.getElementById('surfaceOffsetValLabel').textContent = `${inst.surfaceOffset >= 0 ? '+' : ''}${inst.surfaceOffset}%`;
+
+      document.getElementById('satSlider').style.background =
+        `linear-gradient(to right, hsl(${inst.h}, 0%, ${inst.l}%), hsl(${inst.h}, 100%, ${inst.l}%))`;
+      document.getElementById('lightSlider').style.background =
+        `linear-gradient(to right, hsl(${inst.h}, ${inst.s}%, 12%), hsl(${inst.h}, ${inst.s}%, 50%), hsl(${inst.h}, ${inst.s}%, 85%))`;
+
+      document.getElementById('surfaceLightSlider').style.background =
+        `linear-gradient(to right, hsl(${sHue}, ${inst.surfaceS}%, 3%), hsl(${sHue}, ${inst.surfaceS}%, 16%), hsl(${sHue}, ${inst.surfaceS}%, 32%))`;
+      document.getElementById('surfaceSatSlider').style.background =
+        `linear-gradient(to right, hsl(${sHue}, 0%, ${inst.surfaceL + 8}%), hsl(${sHue}, 55%, ${inst.surfaceL + 8}%))`;
+      document.getElementById('surfaceOffsetSlider').style.background =
+        `linear-gradient(to right, hsl(${sHue}, ${inst.surfaceS}%, ${clamp(inst.surfaceL - 6, 2, 40)}%), hsl(${sHue}, ${inst.surfaceS}%, ${clamp(inst.surfaceL + 10, 2, 40)}%))`;
+
+      // 1. Compute Outer Frame Hex Colors
+      const primaryHex = hslToHex(inst.h, inst.s, inst.l);
+      const fgHex = getAutoContrastHex(inst.h, inst.s, inst.l);
+      const darkerFrameHex = hslToHex(inst.h, inst.s, Math.max(10, inst.l - 7));
+      const borderHex = hslToHex(inst.h, Math.min(100, inst.s + 15), Math.min(70, inst.l + 18));
+      const inactiveBgHex = hslToHex(inst.h, Math.max(15, inst.s - 35), Math.max(12, inst.l - 14));
+      const inactiveFgHex = hslToHex(inst.h, 25, 72);
+
+      // 2. Compute Inner Surface ("The Grays") Hex Colors
+      const editorBgHex = hslToHex(sHue, inst.surfaceS, inst.surfaceL);
+      const breadcrumbBgHex = hslToHex(sHue, inst.surfaceS, clamp(inst.surfaceL + 1, 2, 42));
+      const claudeAndSidebarBgHex = hslToHex(sHue, inst.surfaceS, clamp(inst.surfaceL + inst.surfaceOffset, 2, 42));
+      const claudeHeaderBgHex = hslToHex(sHue, inst.surfaceS, clamp(inst.surfaceL + inst.surfaceOffset + 3, 2, 45));
+      const tabsBarBgHex = hslToHex(sHue, inst.surfaceS, clamp(inst.surfaceL + inst.surfaceOffset + 1, 2, 44));
+      const terminalBgHex = hslToHex(sHue, inst.surfaceS, clamp(inst.surfaceL - 2, 2, 38));
+
+      // Default Fallback Grays when a zone is unchecked
+      const defaultEditorGray = '#0D1117';
+      const defaultSidebarGray = '#131822';
+      const defaultHeaderGray = '#181F2C';
+      const defaultTerminalGray = '#090C10';
+
+      document.getElementById('liveFrameHexPreview').textContent = primaryHex;
+      document.getElementById('liveSurfaceHexPreview').textContent = editorBgHex;
+
+      // Apply Outer Frame Styles
+      const titleBarEl = document.getElementById('ideTitleBar');
+      titleBarEl.style.backgroundColor = inst.zones.titleBar ? primaryHex : '#161b26';
+      titleBarEl.style.color = inst.zones.titleBar ? fgHex : '#cbd5e1';
+
+      document.getElementById('ideWindowFrame').style.borderColor = inst.zones.windowBorder ? borderHex : '#1e293b';
+
+      const activityBarEl = document.getElementById('ideActivityBar');
+      activityBarEl.style.backgroundColor = inst.zones.activityBar ? darkerFrameHex : '#0f131c';
+      activityBarEl.style.color = inst.zones.activityBar ? fgHex : '#cbd5e1';
+      document.getElementById('activityActiveIndicator').style.borderLeftColor = inst.zones.activityBar ? borderHex : '#38bdf8';
+
+      const statusBarEl = document.getElementById('ideStatusBar');
+      statusBarEl.style.backgroundColor = inst.zones.statusBar ? darkerFrameHex : '#0f131c';
+      statusBarEl.style.color = inst.zones.statusBar ? fgHex : '#94a3b8';
+
+      // Apply Inner Surface ("The Grays") Styles
+      const appliedEditorHex = inst.surfaceZones.editor ? editorBgHex : defaultEditorGray;
+      const appliedBreadHex = inst.surfaceZones.editor ? breadcrumbBgHex : defaultSidebarGray;
+      const appliedClaudeHex = inst.surfaceZones.claude ? claudeAndSidebarBgHex : defaultSidebarGray;
+      const appliedClaudeHdrHex = inst.surfaceZones.claude ? claudeHeaderBgHex : defaultHeaderGray;
+      const appliedSidebarHex = inst.surfaceZones.sidebar ? claudeAndSidebarBgHex : defaultSidebarGray;
+      const appliedSidebarHdrHex = inst.surfaceZones.sidebar ? claudeHeaderBgHex : defaultHeaderGray;
+      const appliedTabsHex = inst.surfaceZones.tabsTerm ? tabsBarBgHex : defaultSidebarGray;
+      const appliedTermHex = inst.surfaceZones.tabsTerm ? terminalBgHex : defaultTerminalGray;
+
+      document.getElementById('ideCodeEditorCanvas').style.backgroundColor = appliedEditorHex;
+      document.getElementById('ideActiveTab').style.backgroundColor = appliedEditorHex;
+      document.getElementById('ideBreadcrumbBar').style.backgroundColor = appliedBreadHex;
+
+      document.getElementById('ideClaudeCodePanel').style.backgroundColor = appliedClaudeHex;
+      document.getElementById('ideClaudeHeader').style.backgroundColor = appliedClaudeHdrHex;
+
+      document.getElementById('ideLeftSidebar').style.backgroundColor = appliedSidebarHex;
+      document.getElementById('ideLeftSidebarHeader').style.backgroundColor = appliedSidebarHdrHex;
+
+      document.getElementById('ideTabsBar').style.backgroundColor = appliedTabsHex;
+      document.getElementById('ideTerminalPanel').style.backgroundColor = appliedTermHex;
+
+      // Update Hex Badges on the Panels
+      document.getElementById('badgeEditorBgHex').textContent = appliedEditorHex;
+      document.getElementById('badgeClaudeBgHex').textContent = appliedClaudeHex;
+      document.getElementById('badgeTerminalBgHex').textContent = appliedTermHex;
+
+      document.getElementById('swatchRowEditor').textContent = appliedEditorHex;
+      document.getElementById('swatchRowClaude').textContent = appliedClaudeHex;
+      document.getElementById('swatchRowTabs').textContent = appliedTabsHex;
+      document.getElementById('swatchRowTerminal').textContent = appliedTermHex;
+
+      // Format Prominent Header Text
+      const fullHeaderString = formatProminentTitle(inst.customTitle, inst.prominence, inst.uppercase, inst.fileName);
+      document.getElementById('ideHeaderTitleText').textContent = fullHeaderString;
+
+      // Status Bar Mirror
+      const mirrorContainer = document.getElementById('statusBarWorkspaceMirror');
+      const mirrorText = document.getElementById('statusBarMirrorText');
+      if (inst.statusMirror) {
+        mirrorContainer.style.display = 'flex';
+        mirrorText.textContent = inst.uppercase ? inst.customTitle.toUpperCase() : inst.customTitle;
+      } else {
+        mirrorContainer.style.display = 'none';
+      }
+
+      // Build Live .vscode/settings.json Output
+      const colorCustomizations = {};
+
+      // Outer Frame Keys
+      if (inst.zones.titleBar) {
+        colorCustomizations["titleBar.activeBackground"] = primaryHex;
+        colorCustomizations["titleBar.activeForeground"] = fgHex;
+        colorCustomizations["titleBar.inactiveBackground"] = inactiveBgHex;
+        colorCustomizations["titleBar.inactiveForeground"] = inactiveFgHex;
+      }
+      if (inst.zones.windowBorder) {
+        colorCustomizations["window.activeBorder"] = borderHex;
+        colorCustomizations["window.inactiveBorder"] = inactiveBgHex;
+      }
+      if (inst.zones.activityBar) {
+        colorCustomizations["activityBar.background"] = darkerFrameHex;
+        colorCustomizations["activityBar.foreground"] = fgHex;
+        colorCustomizations["activityBar.activeBorder"] = borderHex;
+      }
+      if (inst.zones.statusBar) {
+        colorCustomizations["statusBar.background"] = darkerFrameHex;
+        colorCustomizations["statusBar.foreground"] = fgHex;
+      }
+
+      // Inner Surfaces ("The Grays") Keys
+      if (inst.surfaceZones.editor) {
+        colorCustomizations["editor.background"] = editorBgHex;
+        colorCustomizations["editorGutter.background"] = editorBgHex;
+        colorCustomizations["breadcrumb.background"] = breadcrumbBgHex;
+      }
+      if (inst.surfaceZones.claude || inst.surfaceZones.sidebar) {
+        colorCustomizations["sideBar.background"] = claudeAndSidebarBgHex;
+        colorCustomizations["sideBarSectionHeader.background"] = claudeHeaderBgHex;
+        colorCustomizations["editorWidget.background"] = claudeAndSidebarBgHex;
+      }
+      if (inst.surfaceZones.tabsTerm) {
+        colorCustomizations["editorGroupHeader.tabsBackground"] = tabsBarBgHex;
+        colorCustomizations["tab.activeBackground"] = editorBgHex;
+        colorCustomizations["tab.inactiveBackground"] = tabsBarBgHex;
+        colorCustomizations["panel.background"] = terminalBgHex;
+        colorCustomizations["terminal.background"] = terminalBgHex;
+      }
+
+      const settingsObj = {
+        "window.titleBarStyle": "custom",
+        "window.title": formatProminentTitle(inst.customTitle, inst.prominence, inst.uppercase, "${activeEditorShort}"),
+        "workbench.colorCustomizations": colorCustomizations
+      };
+
+      document.getElementById('jsonCodeOutput').textContent = JSON.stringify(settingsObj, null, 2);
+    }
+
+    function toggleJsonDrawer() {
+      const box = document.getElementById('jsonInspectorBox');
+      box.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- INSTANCE & PRESET MANAGEMENT ---
+    function renderInstanceTabs() {
+      instances.forEach((inst, idx) => {
+        const btn = document.getElementById(`instanceBtn-${idx}`);
+        const dot = document.getElementById(`dot-${idx}`);
+        const hex = hslToHex(inst.h, inst.s, inst.l);
+        dot.style.backgroundColor = hex;
+
+        if (idx === activeInstanceIdx) {
+          btn.className = 'instance-tab flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-white border border-sky-500/60 shadow';
+        } else {
+          btn.className = 'instance-tab flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-[#161b26] text-slate-400 hover:text-slate-200 border border-slate-800';
+        }
+      });
+    }
+
+    function switchInstance(idx) {
+      activeInstanceIdx = idx;
+      loadInstanceToControls();
+    }
+
+    function renderPresetGrid() {
+      const grid = document.getElementById('presetGrid');
+      grid.innerHTML = '';
+
+      presets.forEach((preset, index) => {
+        const frameHex = hslToHex(preset.h, preset.s, preset.l);
+        const surfHex = hslToHex(preset.h, preset.surfS, preset.surfL);
+
+        const btn = document.createElement('button');
+        btn.className = 'group flex items-center justify-between px-2 py-1.5 rounded-md bg-black/40 hover:bg-white/10 border border-white/10 hover:border-sky-400/50 transition text-left';
+        btn.onclick = () => applyPreset(index);
+
+        btn.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <span class="flex items-center shrink-0">
+              <span class="w-3 h-3 rounded-l-full border border-white/30" style="background-color: ${frameHex};" title="Frame Color"></span>
+              <span class="w-3 h-3 rounded-r-full border border-white/30" style="background-color: ${surfHex};" title="Inner Gray Color"></span>
+            </span>
+            <span class="text-[10px] font-medium text-slate-200 truncate">${preset.name}</span>
+          </div>
+        `;
+        grid.appendChild(btn);
+      });
+    }
+
+    function applyPreset(index) {
+      const preset = presets[index];
+      const inst = instances[activeInstanceIdx];
+      inst.h = preset.h;
+      inst.s = preset.s;
+      inst.l = preset.l;
+      inst.linkSurfaceHue = true;
+      inst.surfaceH = preset.h;
+      inst.surfaceS = preset.surfS;
+      inst.surfaceL = preset.surfL;
+      inst.surfaceOffset = preset.surfOff;
+      inst.prominence = preset.prominence;
+      loadInstanceToControls();
+    }
+
+    function saveCurrentAsPreset() {
+      const nameInput = document.getElementById('newPresetNameInput');
+      const name = nameInput.value.trim();
+      if (!name) return;
+
+      const inst = instances[activeInstanceIdx];
+      presets.push({
+        name,
+        h: inst.h,
+        s: inst.s,
+        l: inst.l,
+        surfS: inst.surfaceS,
+        surfL: inst.surfaceL,
+        surfOff: inst.surfaceOffset,
+        prominence: inst.prominence
+      });
+
+      nameInput.value = '';
+      renderPresetGrid();
+    }
+
+    function resetToDefaultTheme() {
+      const inst = instances[activeInstanceIdx];
+      inst.h = 220;
+      inst.s = 18;
+      inst.l = 16;
+      inst.linkSurfaceHue = true;
+      inst.surfaceH = 220;
+      inst.surfaceS = 14;
+      inst.surfaceL = 9;
+      inst.surfaceOffset = 3;
+      inst.prominence = 'block';
+      loadInstanceToControls();
+    }
+
+    function copySettingsJson() {
+      const code = document.getElementById('jsonCodeOutput').textContent;
+      navigator.clipboard.writeText(code);
+      const btn = document.getElementById('copyJsonBtn');
+      btn.innerHTML = `<i data-lucide="check" class="w-3 h-3 text-emerald-400"></i><span class="text-emerald-300">Copied!</span>`;
+      lucide.createIcons();
+      setTimeout(() => {
+        btn.innerHTML = `<i data-lucide="copy" class="w-3 h-3"></i><span>Copy JSON</span>`;
+        lucide.createIcons();
+      }, 1600);
+    }
+
+    function toggleMultiMonitorModal() {
+      const modal = document.getElementById('multiMonitorModal');
+      const isHidden = modal.classList.contains('hidden');
+
+      if (isHidden) {
+        const grid = document.getElementById('multiMonitorGrid');
+        grid.innerHTML = '';
+
+        instances.forEach((inst, idx) => {
+          const sHue = inst.linkSurfaceHue ? inst.h : inst.surfaceH;
+          const primaryHex = hslToHex(inst.h, inst.s, inst.l);
+          const fgHex = getAutoContrastHex(inst.h, inst.s, inst.l);
+          const darkerFrameHex = hslToHex(inst.h, inst.s, Math.max(10, inst.l - 7));
+          const borderHex = hslToHex(inst.h, Math.min(100, inst.s + 15), Math.min(70, inst.l + 18));
+
+          const editorHex = hslToHex(sHue, inst.surfaceS, inst.surfaceL);
+          const claudeHex = hslToHex(sHue, inst.surfaceS, clamp(inst.surfaceL + inst.surfaceOffset, 2, 42));
+          const headerTitle = formatProminentTitle(inst.customTitle, inst.prominence, inst.uppercase, inst.fileName);
+
+          const card = document.createElement('div');
+          card.className = 'rounded-xl overflow-hidden flex flex-col h-64 shadow-xl cursor-pointer transition transform hover:-translate-y-1';
+          card.style.border = `2px solid ${borderHex}`;
+          card.onclick = () => {
+            switchInstance(idx);
+            toggleMultiMonitorModal();
+          };
+
+          card.innerHTML = `
+            <div class="px-3 py-2 flex items-center justify-between text-[11px] font-extrabold mono truncate" style="background-color: ${primaryHex}; color: ${fgHex};">
+              <span class="truncate">${headerTitle}</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-white/40 shrink-0 ml-2"></span>
+            </div>
+            <div class="flex-1 flex">
+              <div class="w-7 flex flex-col items-center py-2 gap-2" style="background-color: ${darkerFrameHex}; color: ${fgHex};">
+                <span class="w-3 h-3 rounded bg-white/25"></span>
+                <span class="w-3 h-3 rounded bg-white/15"></span>
+              </div>
+              <div class="flex-1 p-3 flex flex-col justify-between" style="background-color: ${editorHex};">
+                <div>
+                  <div class="text-xs font-bold text-white flex items-center justify-between">
+                    <span>${inst.folderName}</span>
+                    <span class="mono text-[10px] px-1.5 py-0.5 rounded bg-black/40 text-slate-300">Editor: ${editorHex}</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-1">Code Canvas + Gutter</div>
+                </div>
+                <div class="text-[11px] text-sky-400 font-medium">Click to customize →</div>
+              </div>
+              <div class="w-24 p-2.5 border-l border-white/10 flex flex-col justify-between text-[10px]" style="background-color: ${claudeHex};">
+                <span class="font-bold text-amber-300">Claude Code</span>
+                <span class="mono text-slate-300">${claudeHex}</span>
+              </div>
+            </div>
+            <div class="px-3 py-1 text-[10px] font-bold mono flex items-center justify-between" style="background-color: ${darkerFrameHex}; color: ${fgHex};">
+              <span>${inst.customTitle}</span>
+              <span>main*</span>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadInstanceToControls();
+    });
+  </script>
+</body>
+</html>

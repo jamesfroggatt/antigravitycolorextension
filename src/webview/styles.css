@@ -1,0 +1,622 @@
+/* Workspace Identity sidebar panel.
+   Uses the IDE's own theme variables so the panel blends in – and re-tints live as you drag. */
+
+:root {
+  --wi-card-bg: rgba(0, 0, 0, 0.18);
+  --wi-card-border: var(--vscode-widget-border, rgba(128, 128, 128, 0.28));
+  --wi-subtle-border: rgba(128, 128, 128, 0.22);
+  --wi-accent: var(--vscode-focusBorder, #3794ff);
+  --wi-radius: 6px;
+  --wi-mono: var(--vscode-editor-font-family, ui-monospace, 'Cascadia Mono', Consolas, monospace);
+}
+
+body.vscode-light,
+body.vscode-high-contrast-light {
+  --wi-card-bg: rgba(0, 0, 0, 0.035);
+}
+
+body.vscode-high-contrast,
+body.vscode-high-contrast-light {
+  --wi-card-border: var(--vscode-contrastBorder, currentColor);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 10px 12px 18px;
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size, 13px);
+  line-height: 1.4;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.mono {
+  font-family: var(--wi-mono);
+}
+
+.muted {
+  color: var(--vscode-descriptionForeground);
+}
+
+.small {
+  font-size: 0.85em;
+}
+
+strong {
+  font-weight: 600;
+  color: var(--vscode-foreground);
+}
+
+/* ---- Layout ------------------------------------------------------------- */
+
+.controls {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls:disabled {
+  opacity: 0.5;
+}
+
+.topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.eyebrow {
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground);
+}
+
+.badge {
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82em;
+  padding: 1px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--wi-subtle-border);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+body.vscode-light .badge {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.card {
+  background: var(--wi-card-bg);
+  border: 1px solid var(--wi-card-border);
+  border-radius: var(--wi-radius);
+  padding: 10px 10px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.card.accent {
+  border-color: color-mix(in srgb, var(--wi-accent) 50%, transparent);
+  background: color-mix(in srgb, var(--wi-accent) 6%, var(--wi-card-bg));
+}
+
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.card-head h2 {
+  margin: 0;
+  min-width: 0;
+  font-size: 1em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-head h2 .codicon {
+  color: var(--wi-accent);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.split {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.divider {
+  border-top: 1px solid var(--wi-subtle-border);
+  padding-top: 8px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--vscode-descriptionForeground);
+  font-size: 0.92em;
+}
+
+.hint.small {
+  margin-top: 3px;
+  font-size: 0.82em;
+}
+
+/* ---- Hex chips --------------------------------------------------------- */
+
+.hex {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8em;
+  padding: 1px 7px 1px 4px;
+  border-radius: 4px;
+  border: 1px solid var(--wi-subtle-border);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+body.vscode-light .hex {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* ---- Inputs ------------------------------------------------------------ */
+
+.text-input {
+  width: 100%;
+  min-width: 0;
+  padding: 4px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--vscode-input-border, transparent);
+  background: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  font-size: inherit;
+  outline: none;
+}
+
+.text-input.mono {
+  font-weight: 600;
+}
+
+.text-input:focus {
+  border-color: var(--vscode-focusBorder);
+}
+
+.text-input::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+  font-weight: 400;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.95em;
+  min-width: 0;
+}
+
+.check input {
+  margin: 0;
+  accent-color: var(--vscode-button-background, var(--wi-accent));
+  cursor: pointer;
+}
+
+.check:has(input:disabled) {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+}
+
+/* ---- Buttons ----------------------------------------------------------- */
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  border: 1px solid var(--vscode-button-border, transparent);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+}
+
+.btn.primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.btn.secondary {
+  background: var(--vscode-button-secondaryBackground, rgba(128, 128, 128, 0.18));
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+}
+
+.btn.secondary:hover {
+  background: var(--vscode-button-secondaryHoverBackground, rgba(128, 128, 128, 0.28));
+}
+
+.btn.secondary.armed {
+  background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
+  border-color: var(--vscode-inputValidation-errorBorder, #be1100);
+  color: var(--vscode-foreground);
+}
+
+.btn.wide {
+  width: 100%;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--vscode-icon-foreground, inherit);
+}
+
+.icon-btn:hover {
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 1px;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+/* Title style buttons (2 × 2) */
+.style-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.style-btn {
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--wi-subtle-border);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--vscode-descriptionForeground);
+  font-size: 0.78em;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+body.vscode-light .style-btn {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.style-btn:hover {
+  color: var(--vscode-foreground);
+}
+
+.style-btn.active {
+  border-color: var(--wi-accent);
+  background: color-mix(in srgb, var(--wi-accent) 22%, transparent);
+  color: var(--vscode-foreground);
+  font-weight: 700;
+}
+
+.preview {
+  font-size: 0.8em;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed var(--wi-subtle-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.vscode-light .preview {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Quick gray chips (4 across) */
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.chip {
+  padding: 3px 2px;
+  border-radius: 4px;
+  border: 1px solid var(--wi-subtle-border);
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 0.78em;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.vscode-light .chip {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.chip:hover {
+  border-color: var(--wi-accent);
+}
+
+/* ---- Sliders (mockup style) --------------------------------------------- */
+
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.92em;
+}
+
+.slider-label label {
+  color: var(--vscode-descriptionForeground);
+}
+
+.slider-label .val {
+  font-weight: 600;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  margin: 2px 0;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  background: rgba(128, 128, 128, 0.35);
+  border: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #0f172a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+  cursor: grab;
+  transition: transform 0.1s ease;
+}
+
+input[type='range']:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.18);
+}
+
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--vscode-focusBorder);
+  outline-offset: 1px;
+}
+
+input[type='range']:disabled {
+  cursor: default;
+}
+
+.track-rainbow {
+  background: linear-gradient(
+    to right,
+    hsl(0, 85%, 50%),
+    hsl(60, 85%, 50%),
+    hsl(120, 85%, 50%),
+    hsl(180, 85%, 50%),
+    hsl(240, 85%, 50%),
+    hsl(300, 85%, 50%),
+    hsl(360, 85%, 50%)
+  ) !important;
+}
+
+.scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -4px;
+  font-size: 0.72em;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* ---- Presets ------------------------------------------------------------ */
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.preset {
+  position: relative;
+  min-width: 0;
+}
+
+.preset-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--wi-subtle-border);
+  background: rgba(0, 0, 0, 0.25);
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+body.vscode-light .preset-btn {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.preset.user .preset-btn {
+  padding-right: 24px;
+}
+
+.preset-btn:hover {
+  border-color: var(--wi-accent);
+}
+
+.duo {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.duo span {
+  width: 11px;
+  height: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.duo span:first-child {
+  border-radius: 999px 0 0 999px;
+}
+
+.duo span:last-child {
+  border-radius: 0 999px 999px 0;
+}
+
+.preset-name {
+  font-size: 0.82em;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-del {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+}
+
+.preset-del:hover {
+  opacity: 1;
+}
+
+.save-row .text-input {
+  flex: 1;
+}
+
+/* ---- Banners & notices --------------------------------------------------- */
+
+.banner,
+.notice,
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 7px 9px;
+  border-radius: 4px;
+  font-size: 0.92em;
+}
+
+.banner {
+  margin-bottom: 10px;
+  background: var(--vscode-inputValidation-infoBackground, rgba(55, 148, 255, 0.15));
+  border: 1px solid var(--vscode-inputValidation-infoBorder, #3794ff);
+}
+
+.notice {
+  margin-bottom: 10px;
+  background: var(--vscode-inputValidation-infoBackground, rgba(55, 148, 255, 0.15));
+  border: 1px solid var(--vscode-inputValidation-infoBorder, #3794ff);
+}
+
+.notice[data-level='warning'] {
+  background: var(--vscode-inputValidation-warningBackground, rgba(204, 167, 0, 0.15));
+  border-color: var(--vscode-inputValidation-warningBorder, #cca700);
+}
+
+.notice[data-level='error'] {
+  background: var(--vscode-inputValidation-errorBackground, rgba(190, 17, 0, 0.15));
+  border-color: var(--vscode-inputValidation-errorBorder, #be1100);
+}
+
+.notice #noticeText {
+  flex: 1;
+}
+
+.notice .icon-btn {
+  margin: -3px -4px -3px 0;
+}
+
+.note {
+  background: var(--vscode-inputValidation-warningBackground, rgba(204, 167, 0, 0.15));
+  border: 1px solid var(--vscode-inputValidation-warningBorder, #cca700);
+  font-size: 0.85em;
+}
+
+.banner .codicon,
+.notice .codicon,
+.note .codicon {
+  margin-top: 1px;
+  flex-shrink: 0;
+}

@@ -1,0 +1,12 @@
+**
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE
+!dist/extension.js
+!dist/webview.js
+!dist/webview.css
+!dist/codicons/codicon.css
+!dist/codicons/codicon.ttf
+!media/activity-icon.svg
+!media/icon.png
