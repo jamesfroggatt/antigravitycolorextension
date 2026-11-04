@@ -89,6 +89,7 @@ export interface InitState {
 // ---- Webview → host messages -------------------------------------------------
 export type UiToHost =
   | { type: 'READY' }
+  | { type: 'LOG'; text: string }
   | { type: 'UPDATE_FRAME_COLORS'; profile: IdentityProfile }
   | { type: 'UPDATE_SURFACE_COLORS'; profile: IdentityProfile }
   | { type: 'UPDATE_TITLE'; profile: IdentityProfile }

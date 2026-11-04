@@ -70,4 +70,5 @@ npx vsce publish -p YOUR_AZURE_TOKEN
 | `npm test` | Unit tests for the colour maths, titles and settings merging |
 | `npm run test:integration` | Opens a throwaway Antigravity window and checks what the extension writes to `settings.json` |
 | `set WI_IDE=vscode&& npm run test:integration` | The same checks, in VS Code |
+| `npm run screenshots` | Opens throwaway Antigravity windows and rebuilds the README images in `media/` |
 | **F5** in the editor | Starts a development window with `test-fixtures/sample-workspace` |

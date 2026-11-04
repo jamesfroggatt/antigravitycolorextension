@@ -143,7 +143,11 @@ export class Controller implements vscode.Disposable {
     try {
       switch (msg?.type) {
         case 'READY':
+          this.log.appendLine('[panel] Ready.');
           this.sendInit();
+          return;
+        case 'LOG':
+          this.log.appendLine(`[panel] ${String(msg.text).slice(0, 500)}`);
           return;
         case 'UPDATE_FRAME_COLORS':
         case 'UPDATE_SURFACE_COLORS':

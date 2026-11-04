@@ -61,6 +61,12 @@
     },
     "commands": [
       {
+        "command": "workspaceIdentity.openPanel",
+        "title": "Open Panel",
+        "category": "Workspace Identity",
+        "icon": "$(window)"
+      },
+      {
         "command": "workspaceIdentity.applyPreset",
         "title": "Apply Preset…",
         "category": "Workspace Identity"
@@ -98,6 +104,7 @@
     "test": "vitest run",
     "test:integration": "node esbuild.mjs && node test/integration/run.mjs",
     "icon": "node scripts/make-icon.mjs",
+    "screenshots": "node esbuild.mjs && node scripts/screenshots/capture.mjs",
     "vscode:prepublish": "node esbuild.mjs --production",
     "package": "npm run typecheck && npm test && vsce package --no-dependencies"
   },
@@ -109,6 +116,7 @@
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^4.1.0",
     "esbuild": "^0.28.2",
+    "puppeteer-core": "^25.16.0",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   }

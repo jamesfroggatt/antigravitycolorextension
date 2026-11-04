@@ -2,5 +2,7 @@ node_modules/
 dist/
 *.vsix
 .vscode-test/
+# Personal window colours (e.g. from Workspace Identity itself) – keep out of the repo
+.vscode/settings.json
 test-fixtures/**/.vscode/
 test-fixtures/**/*.code-workspace

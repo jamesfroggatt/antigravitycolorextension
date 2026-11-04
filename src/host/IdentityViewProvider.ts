@@ -11,11 +11,13 @@ export class IdentityViewProvider implements vscode.WebviewViewProvider {
   constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly controller: Controller,
+    private readonly log: vscode.OutputChannel,
   ) {
     controller.setPoster((msg) => this.post(msg));
   }
 
   resolveWebviewView(view: vscode.WebviewView): void {
+    this.log.appendLine('[panel] Opening the sidebar panel…');
     this.view = view;
     view.webview.options = {
       enableScripts: true,

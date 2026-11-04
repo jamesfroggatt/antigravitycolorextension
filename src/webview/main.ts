@@ -27,6 +27,10 @@ declare function acquireVsCodeApi(): { postMessage(msg: UiToHost): void };
 const vscode = acquireVsCodeApi();
 const send = (msg: UiToHost) => vscode.postMessage(msg);
 
+// Forward any panel errors to the "Workspace Identity" output channel so problems are visible.
+window.addEventListener('error', (e) => send({ type: 'LOG', text: `Error: ${e.message} (${e.filename}:${e.lineno})` }));
+window.addEventListener('unhandledrejection', (e) => send({ type: 'LOG', text: `Unhandled: ${String(e.reason)}` }));
+
 // ---- State -------------------------------------------------------------------
 
 interface UiState {

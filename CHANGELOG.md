@@ -11,4 +11,5 @@ First release.
 - Built-in and saved presets, shared across every window.
 - Optional "Keep colours out of git".
 - Reset to theme default.
+- Commands: Open Panel, Apply Preset…, Reset Workspace Colours.
 - Works in Antigravity IDE and VS Code 1.85+.

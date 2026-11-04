@@ -57,6 +57,19 @@ exports.run = async function run() {
   const colors = () => settings()['workbench.colorCustomizations'] || {};
   const profile = () => JSON.parse(JSON.stringify(controller.initState().profile));
 
+  await step('"Open Panel" opens the sidebar panel and its script fully loads', async () => {
+    // READY is the last thing the panel script sends, so receiving it proves the page loaded
+    // its CSS/JS under the security policy and ran without errors.
+    let readies = 0;
+    const original = controller.handle.bind(controller);
+    controller.handle = (msg) => {
+      if (msg && msg.type === 'READY') readies++;
+      return original(msg);
+    };
+    await vscode.commands.executeCommand('workspaceIdentity.openPanel');
+    await poll(() => assert.ok(readies > 0, 'panel never reported READY'), 15000);
+  });
+
   await step('starts with no identity (panel would read the theme)', async () => {
     assert.equal(controller.initState().profile, null);
     assert.equal(controller.initState().hasFolder, true);

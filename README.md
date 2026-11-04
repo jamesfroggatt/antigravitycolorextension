@@ -1,72 +1,67 @@
 # Workspace Identity
 
-**Give every IDE window its own colour and name, so you can tell them apart at a glance.**
+**Tell your IDE windows apart at a glance.** Give each project its own frame colour, a tinted editor background and a bold name in the title bar.
 
-If you keep several windows open at once (frontend, backend, a worker, production vs. staging), they normally all look identical. Workspace Identity lets you colour each window's frame and its inner "grays" and put a bold name in the title bar, all from one sidebar panel with live sliders.
+![Three Antigravity windows, each with its own colour and title](media/screenshot-windows.png)
 
-Works in **Antigravity IDE** and **Visual Studio Code** (1.85 or newer).
+## Why it exists
 
-<img src="media/screenshot-panel.png" alt="The Workspace Identity sidebar panel" width="320">
+When several projects are open at once (a website, an API, a background worker, production and staging), every window looks identical, and it's easy to type into the wrong one. Workspace Identity colours each window's frame and backgrounds and puts a big name across the top, so you always know which project you're in.
 
-## Features
+Works in **Antigravity IDE** and **VS Code** (1.85 or newer).
 
-- **Outer frame colour:** hue, saturation and lightness sliders recolour the title bar, window border, activity bar and status bar. Text colour switches between white and charcoal automatically, so it always stays readable.
-- **Inner surfaces ("the grays"):** tint the backgrounds behind the code editor, Claude Code and the other sidebars, the tabs and the terminal. Go from OLED black to slate gray, with an optional subtle colour tint. There's also a contrast step between the editor and the side panels.
-- **Quick grays:** one-click *OLED Black*, *Pure Gray*, *Theme Tint* and *Lighter Gray*.
-- **Bold window title:** type a name and pick a style:
-  - `██  PAYMENTS API  ██`
-  - `【 PAYMENTS API 】`
-  - `P A Y M E N T S`
-  - `⟫⟫⟫  PAYMENTS API  ⟪⟪⟪`
-- **Status bar pill:** shows the name at the far left of the status bar as well.
-- **Presets in every window:** six built-in schemes, plus your own. A preset you save in one window appears in all the others.
-- **Keep colours out of git** (optional): stops git listing `.vscode/settings.json` as changed. This only affects your copy of the project.
-- **One-click reset:** puts the window back to your theme's defaults.
+## Getting started
 
-## How to use
+1. **Open a project folder** (*File → Open Folder*). Each folder remembers its own look.
+2. **Open the Workspace Identity panel** by clicking its icon in the bar of icons:
 
-1. Open the **Workspace Identity** icon in the activity bar.
-2. Type a name for the window, and choose a title style.
-3. Drag the **Outer Frame** sliders, or click a preset.
-4. Adjust **Inner Surfaces** to tint the editor and panels.
+   ![Click the Workspace Identity icon to open the panel](media/how-to-open.png)
 
-Changes appear in the window as you drag. Each project folder remembers its own look.
+   - **Icons down the left edge** (VS Code, and Antigravity's default): click the window-shaped icon.
+   - **Icons in a row across the top of the sidebar** (some Antigravity layouts): it's the **last icon in that row**. If the row is full, it may be hidden behind **⋯** or **»**.
+   - **Or use the keyboard:** press `Ctrl+Shift+P` (`Cmd+Shift+P` on Mac), type **Workspace Identity**, and choose **Workspace Identity: Open Panel**.
 
-The first time you open the panel, the sliders start at your current theme's colours. Nothing changes until you move one.
+   > Clicking *Workspace Identity* in the **Extensions** list only opens this information page. Use the icon or the command above to get the sliders.
 
-## What it changes
+3. **Click a preset**, or drag the sliders. The window changes as you drag.
+4. **Type a name** in the first card (for example `PAYMENTS API [PROD]`) and pick a style.
 
-Everything is written to the project's **workspace settings** (`.vscode/settings.json`). Your global settings and theme are never modified.
+To undo everything, click **Reset to theme default** at the bottom of the panel. Click it twice to confirm.
 
-| Setting | What Workspace Identity writes |
+## The panel
+
+![The Workspace Identity panel open beside the code editor](media/screenshot-window.png)
+
+| Card | What it does |
 |---|---|
-| `workbench.colorCustomizations` | Only its own colour keys. Any other colours you've set are left alone. |
-| `window.title` and `window.titleSeparator` | Only when you type a name. Reset removes them again. |
-
-**Reset to theme default** removes exactly those keys and nothing else.
+| **1. Header Title** | The name shown in the title bar, in one of four styles: `██ BLOCK ██`, `【 BRACKET 】`, `W I D E`, `⟫⟫ CHEVRON ⟪⟪`. It can also appear in the status bar. |
+| **2. Outer Frame** | Colours the title bar, window border, activity bar and status bar. Text colour switches automatically to stay readable. |
+| **3. Inner Surfaces** | The "grays" behind the editor, the sidebars (including Claude Code), the tabs and the terminal, from OLED black to slate, with an optional colour tint. |
+| **4. Presets** | Six ready-made schemes plus your own. A preset saved in one window appears in every window. Also holds *Keep colours out of git* and *Reset*. |
 
 ## Good to know
 
-- **Claude Code and the Explorer share one colour.** The secondary sidebar where Claude Code docks has no colour setting of its own, so both follow the *Sidebars & Claude Code* surface.
-- **The title bar must be "custom"**, which is the default on Windows. If yours is set to `native`, the extension offers to switch it for you. That needs a restart.
-- **The grays are designed for dark themes.** With a light theme the panel shows a warning, because dark backgrounds with dark text are hard to read. You can change the safe range in Settings.
-- **Keep colours out of git** adds one line to `.git/info/exclude`, a private ignore list that is never committed. It can't hide a `.vscode/settings.json` that is *already* committed to the repository; the panel tells you if that's the case.
-
-## Settings
-
-| Setting | Default | Description |
-|---|---|---|
-| `workspaceIdentity.surfaceLightnessMin` | `4` | Darkest allowed lightness (%) for the inner surfaces. |
-| `workspaceIdentity.surfaceLightnessMax` | `32` | Lightest allowed lightness (%) for the inner surfaces. |
+- **Only this project is changed.** Colours are saved in the project's `.vscode/settings.json`. Only the keys this extension owns are touched, and *Reset* removes exactly those.
+- **Claude Code and the Explorer share one colour.** The IDE has a single background setting for both sidebars.
+- **The title bar must be "custom"**, which is the default on Windows. If yours is set to *native*, the extension offers to switch it for you. That needs a restart.
+- **The grays are made for dark themes.** With a light theme you'll see a warning.
+- **Keep colours out of git** stops git listing `.vscode/settings.json` as changed, on your computer only.
+- **No network access and no tracking.** Saved presets travel between your computers if Settings Sync is on.
 
 ## Commands
 
-- **Workspace Identity: Apply Preset…** picks a colour scheme from the command palette.
-- **Workspace Identity: Reset Workspace Colours** puts this window back to the theme default.
+| Command | |
+|---|---|
+| **Workspace Identity: Open Panel** | Opens the sliders panel |
+| **Workspace Identity: Apply Preset…** | Applies a colour scheme without opening the panel |
+| **Workspace Identity: Reset Workspace Colours** | Puts this window back to the theme default |
 
-## Privacy
+## Settings
 
-Workspace Identity makes no network requests and collects no data. Your presets are stored by the IDE, and they sync between your machines if Settings Sync is turned on.
+| Setting | Default | |
+|---|---|---|
+| `workspaceIdentity.surfaceLightnessMin` | `4` | Darkest allowed background (%) for the inner surfaces |
+| `workspaceIdentity.surfaceLightnessMax` | `32` | Lightest allowed background (%) for the inner surfaces |
 
 ## Licence
 

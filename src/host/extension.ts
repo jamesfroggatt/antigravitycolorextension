@@ -4,7 +4,7 @@ import { Controller } from './controller';
 import { IdentityViewProvider } from './IdentityViewProvider';
 import { ProfileStore } from './profileStore';
 import { SettingsWriter } from './settingsWriter';
-import { StatusPill } from './statusPill';
+import { PANEL_FOCUS_COMMAND, StatusPill } from './statusPill';
 import { checkTitleBarStyle } from './titleBarCheck';
 
 /** Small surface returned from activate() so integration tests can drive the extension. */
@@ -18,7 +18,7 @@ export function activate(ctx: vscode.ExtensionContext): WorkspaceIdentityApi {
   const writer = new SettingsWriter(log);
   const pill = new StatusPill();
   const controller = new Controller(store, writer, pill, log);
-  const provider = new IdentityViewProvider(ctx.extensionUri, controller);
+  const provider = new IdentityViewProvider(ctx.extensionUri, controller, log);
 
   ctx.subscriptions.push(
     log,
@@ -26,6 +26,9 @@ export function activate(ctx: vscode.ExtensionContext): WorkspaceIdentityApi {
     pill,
     controller,
     vscode.window.registerWebviewViewProvider(IdentityViewProvider.viewType, provider),
+    vscode.commands.registerCommand('workspaceIdentity.openPanel', () =>
+      vscode.commands.executeCommand(PANEL_FOCUS_COMMAND),
+    ),
     vscode.commands.registerCommand('workspaceIdentity.applyPreset', (id?: unknown) =>
       controller.pickAndApplyPreset(id),
     ),
@@ -34,6 +37,7 @@ export function activate(ctx: vscode.ExtensionContext): WorkspaceIdentityApi {
     ),
   );
 
+  log.appendLine(`Activated in ${vscode.env.appName} ${vscode.version}.`);
   void checkTitleBarStyle(ctx);
   return { controller };
 }
